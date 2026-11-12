@@ -68,4 +68,5 @@ void ejecutar_simulacion() {
     calcular_desaceleracion_media(&simulacion);
     calcular_fuerza_amerizaje(&simulacion);
     analizar_angulo_reingreso(&simulacion);
+    return simulacion; // Retorna la estructura para registrarla en el historial del main
 }
