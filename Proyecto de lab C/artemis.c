@@ -20,45 +20,54 @@ void inicializar_parametros(ParametrosReingreso *simulacion) {
 }
 
 void calcular_trabajo_rozamiento(const ParametrosReingreso *simulacion) {
-    // Cálculo del trabajo total por rozamiento atmosférico usando conservación de energía
-    double e_ci = 0.5 * MASA_ORION * pow(simulacion->vel_ini, 2);
-    double e_pi = MASA_ORION * GRAVEDAD * simulacion->alt_ini;
-    double e_cf = 0.5 * MASA_ORION * pow(simulacion->vel_para, 2);
-    double e_pf = MASA_ORION * GRAVEDAD * simulacion->alt_para;
+    double ec_ini = 0.5 * MASA_ORION * pow(simulacion->vel_ini, 2);
+    double ep_ini = MASA_ORION * GRAVEDAD * simulacion->alt_ini;
+    double ec_fin = 0.5 * MASA_ORION * pow(simulacion->vel_para, 2);
+    double ep_fin = MASA_ORION * GRAVEDAD * simulacion->alt_para;
     
-    double w_roz = (e_cf + e_pf) - (e_ci + e_pi);
-    printf("\na. Trabajo total por rozamiento (Wroz): %.2e Joules\n", w_roz);
+    double w_roz = (ec_fin + ep_fin) - (ec_ini + ep_ini);
+    
+    // Espacio superior para separar del menú o entradas anteriores
+    printf("\n\n======================================================\n");
+    printf("         REPORTE DE RESULTADOS - FASE DE REINGRESO    \n");
+    printf("======================================================\n\n");
+    
+    printf(" [1] Trabajo total por rozamiento (Wroz)\n");
+    printf("     -> %.2e Joules\n\n", w_roz);
 }
 
 void calcular_desaceleracion_media(const ParametrosReingreso *simulacion) {
-    // Cálculo de la desaceleración media experimentada durante la fase atmosférica
-    double a = fabs((simulacion->vel_para - simulacion->vel_ini) / simulacion->t_freno);
-    double a_g = a / GRAVEDAD;
-    printf("b. Desaceleracion media: %.2f m/s^2 (%.2f g)\n", a, a_g);
+    double decel = fabs((simulacion->vel_para - simulacion->vel_ini) / simulacion->t_freno);
+    double decel_g = decel / GRAVEDAD;
+    
+    printf(" [2] Desaceleracion media de frenado\n");
+    printf("     -> %.2f m/s^2  (%.2f g)\n\n", decel, decel_g);
 }
 
 void calcular_fuerza_amerizaje(const ParametrosReingreso *simulacion) {
-    // Determinación de la fuerza promedio del agua sobre el módulo durante el impacto
-    double e_c_impacto = 0.5 * MASA_ORION * pow(simulacion->v_impacto, 2);
+    double ec_impacto = 0.5 * MASA_ORION * pow(simulacion->vel_agua, 2);
     double trabajo_peso = MASA_ORION * GRAVEDAD * simulacion->hundimiento;
-    double f_prom = (e_c_impacto + trabajo_peso) / simulacion->hundimiento;
+    double f_agua = (ec_impacto + trabajo_peso) / simulacion->hundimiento;
     double peso = MASA_ORION * GRAVEDAD;
     
-    printf("c. Fuerza promedio del agua: %.2f N (%.2f veces el peso)\n", f_prom, f_prom / peso);
+    printf(" [3] Fuerza promedio del agua (Amerizaje)\n");
+    printf("     -> %.2f N  (%.2f veces el peso de la nave)\n\n", f_agua, f_agua / peso);
 }
 
 void analizar_angulo_reingreso(const ParametrosReingreso *simulacion) {
-    // Evaluación del ángulo de reingreso respecto a los límites de seguridad de la trayectoria
-    printf("d. Analisis del angulo de reingreso (%.2f grados): ", simulacion->angulo_reingreso);
-    if (simulacion->angulo_reingreso > 7.0) {
-        printf("Desaceleracion excesiva (angulo muy empinado).\n");
-    } else if (simulacion->angulo_reingreso < 5.5) {
-        printf("Rebote atmosferico (angulo muy plano).\n");
+    printf(" [4] Analisis del angulo de reingreso (%.2f deg)\n", simulacion->angulo);
+    printf("     -> Estado: ");
+    
+    if (simulacion->angulo > ANG_MAX) {
+        printf("[ALERTA] Desaceleracion excesiva (superior a %.1f deg).\n", ANG_MAX);
+    } else if (simulacion->angulo < ANG_MIN) {
+        printf("[ALERTA] Rebote atmosferico (inferior a %.1f deg).\n", ANG_MIN);
     } else {
-        printf("Angulo dentro de la ventana de seguridad.\n");
+        printf("[ESTABLE] Dentro de la ventana de seguridad (%.1f - %.1f deg).\n", ANG_MIN, ANG_MAX);
     }
+    
+    printf("======================================================\n\n");
 }
-
 void ejecutar_simulacion() {
     // Función controladora principal que instancia el estado e invoca los cálculos
     ParametrosReingreso simulacion;
