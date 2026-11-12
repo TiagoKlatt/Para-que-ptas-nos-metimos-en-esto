@@ -2,25 +2,38 @@
 #include <stdio.h>
 #include "validaciones.h"
 
-double leer_flotante(const char *mensaje, double min, double max) {
-    double valor;
-    int resultado_scanf;
+void limpiar_buffer(void) {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
 
+double leer_flotante(const char *msg, double min, double max) {
+    double val;
+    int ok;
     do {
-        printf("%s", mensaje);
-        resultado_scanf = scanf("%lf", &valor);
-
-        // Limpiar el búfer de entrada completamente para evitar bucles infinitos por caracteres inválidos
-        while (getchar() != '\n');
-
-        // Validar si la entrada fue un número válido y si se encuentra dentro del rango permitido
-        if (resultado_scanf != 1) {
-            printf("[Error de formato] Por favor, ingrese un numero valido.\n");
-        } else if (valor < min || valor > max) {
-            printf("[Error de rango] El valor debe estar comprendido entre %.2f y %.2f.\n", min, max);
+        printf("%s", msg);
+        ok = scanf("%lf", &val);
+        limpiar_buffer(); // Limpieza obligatoria en cada iteración
+        
+        if (ok != 1 || val < min || val > max) {
+            printf("Error: ingrese un valor valido entre %.2f y %.2f.\n", min, max);
         }
+    } while (ok != 1 || val < min || val > max);
+    
+    return val;
+}
 
-    } while (resultado_scanf != 1 || valor < min || valor > max);
-
-    return valor;
+int leer_entero(const char *msg, int min, int max) {
+    int val, ok;
+    do {
+        printf("%s", msg);
+        ok = scanf("%d", &val);
+        limpiar_buffer(); // Limpieza obligatoria contra bucles infinitos
+        
+        if (ok != 1 || val < min || val > max) {
+            printf("Error: ingrese un entero valido entre %d y %d.\n", min, max);
+        }
+    } while (ok != 1 || val < min || val > max);
+    
+    return val;
 }
